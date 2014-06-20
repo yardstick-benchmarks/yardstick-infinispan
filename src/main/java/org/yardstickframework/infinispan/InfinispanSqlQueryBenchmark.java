@@ -15,7 +15,9 @@
 package org.yardstickframework.infinispan;
 
 import org.infinispan.*;
+import org.infinispan.client.hotrod.*;
 import org.infinispan.query.*;
+import org.infinispan.query.Search;
 import org.infinispan.query.dsl.*;
 import org.yardstickframework.*;
 import org.yardstickframework.infinispan.querymodel.*;
@@ -89,9 +91,15 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
      * @throws Exception If failed.
      */
     private Collection<Person> executeQuery(double minSalary, double maxSalary) throws Exception {
-        SearchManager searchMgr = Search.getSearchManager((Cache<Object, Object>)cache);
+        QueryFactory qf;
 
-        QueryFactory qf = searchMgr.getQueryFactory();
+        if (args.clientMode())
+            qf = org.infinispan.client.hotrod.Search.getQueryFactory((RemoteCache<Object, Object>)cache);
+        else {
+            SearchManager searchMgr = Search.getSearchManager((Cache<Object, Object>)cache);
+
+            qf = searchMgr.getQueryFactory();
+        }
 
         Query qry = qf.from(Person.class).having("salary").between(minSalary, maxSalary).toBuilder().build();
 

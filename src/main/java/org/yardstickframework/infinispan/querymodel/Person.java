@@ -39,6 +39,7 @@ public class Person implements Externalizable {
 
     /** Salary. */
     @Field(store = Store.YES, analyze = Analyze.NO)
+    @NumericField
     private double salary;
 
     /**

@@ -65,7 +65,8 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
 
         assert cache != null;
 
-        addListener();
+        if (!args.clientMode())
+            addListener();
     }
 
     /** {@inheritDoc} */

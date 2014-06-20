@@ -15,6 +15,7 @@
 package org.yardstickframework.infinispan;
 
 import org.infinispan.*;
+import org.yardstickframework.*;
 
 import javax.transaction.*;
 
@@ -25,6 +26,14 @@ public class InfinispanPutGetTxBenchmark extends InfinispanAbstractBenchmark {
     /** */
     public InfinispanPutGetTxBenchmark() {
         super("transactional");
+    }
+
+    /** {@inheritDoc} */
+    @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
+        super.setUp(cfg);
+
+        if (args.clientMode())
+            throw new IllegalStateException("HotRod Client does not support transactions.");
     }
 
     /** {@inheritDoc} */

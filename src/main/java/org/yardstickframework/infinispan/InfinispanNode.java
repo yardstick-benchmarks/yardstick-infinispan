@@ -16,12 +16,17 @@ package org.yardstickframework.infinispan;
 
 import org.apache.log4j.*;
 import org.infinispan.*;
+import org.infinispan.client.hotrod.*;
 import org.infinispan.commons.api.*;
 import org.infinispan.configuration.cache.*;
 import org.infinispan.manager.*;
+import org.infinispan.server.hotrod.*;
+import org.infinispan.server.hotrod.configuration.*;
 import org.infinispan.transaction.*;
-import org.infinispan.util.concurrent.*;
+import org.jboss.netty.channel.*;
 import org.yardstickframework.*;
+
+import java.net.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -31,6 +36,9 @@ import static org.yardstickframework.BenchmarkUtils.*;
 public class InfinispanNode implements BenchmarkServer {
     /** */
     private BasicCacheContainer cacheMgr;
+
+    /** */
+    private HotRodServer hotRodServer;
 
     /** Client mode. */
     private boolean clientMode;
@@ -53,17 +61,23 @@ public class InfinispanNode implements BenchmarkServer {
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-node>");
 
-        DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
+        if (clientMode)
+            cacheMgr = new RemoteCacheManager();
+        else {
+            DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
 
-        cache(args, "cache", cacheMgr);
+            cache(args, "cache", cacheMgr);
 
-        cache(args, "transactional", cacheMgr);
+            cache(args, "transactional", cacheMgr);
 
-        cache(args, "queryCache", cacheMgr);
+            cache(args, "queryCache", cacheMgr);
 
-        this.cacheMgr = cacheMgr;
+            this.cacheMgr = cacheMgr;
 
-        println(cfg, "Infinispan member started.");
+            startHotRodServer(cfg, args, cacheMgr);
+
+            println(cfg, "Infinispan node started.");
+        }
     }
 
     /**
@@ -82,14 +96,49 @@ public class InfinispanNode implements BenchmarkServer {
         cfgBuilder.clustering().hash().numOwners(args.backups() + 1);
 
         // READ_COMMITTED isolation level is used by default.
+/*
         cfgBuilder.locking().isolationLevel(IsolationLevel.REPEATABLE_READ);
-
+*/
         // By default, transactional cache is optimistic.
         cfg.transaction().lockingMode(args.txPessimistic() ? LockingMode.PESSIMISTIC : LockingMode.OPTIMISTIC);
 
         cacheMgr.defineConfiguration(cacheName, cfgBuilder.build());
 
         return cacheMgr.getCache(cacheName);
+    }
+
+    /**
+     * @param cfg Config.
+     * @param args Arguments.
+     * @param cacheMgr Cache manager.
+     */
+    private void startHotRodServer(BenchmarkConfiguration cfg, InfinispanBenchmarkArguments args, DefaultCacheManager cacheMgr) {
+        String host = cacheMgr.getTransport().getPhysicalAddresses().get(0).toString().split(":")[0];
+
+        // Try to start server beginning with default port, it is needed when several nodes are run on one machine.
+        for (int i = 0, n = Math.max(args.nodes(), 10); i < n; i++) {
+            int port = 11222 + i;
+
+            println(cfg, "Trying to start HotRodServer on host " + host + ", port " + port + "...");
+
+            try {
+                HotRodServerConfigurationBuilder builder = new HotRodServerConfigurationBuilder().port(port).host(host);
+
+                hotRodServer = new HotRodServer();
+
+                hotRodServer.start(builder.build(), cacheMgr);
+
+                println(cfg, "HotRodServer is started on host " + host + ", port " + port + ".");
+
+                break;
+            }
+            catch (ChannelException e) {
+                if (!(e.getCause() instanceof BindException))
+                    throw e;
+                else
+                    println(cfg, "Port is already in use " + port + ", let's try next port.");
+            }
+        }
     }
 
     /** */
@@ -106,6 +155,9 @@ public class InfinispanNode implements BenchmarkServer {
     @Override public void stop() throws Exception {
         if (cacheMgr != null)
             cacheMgr.stop();
+
+        if (hotRodServer != null)
+            hotRodServer.stop();
     }
 
     /** {@inheritDoc} */
