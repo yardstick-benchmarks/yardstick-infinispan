@@ -32,6 +32,10 @@ Before running Infinispan benchmarks, run `mvn package` command. This command wi
 
 > Refer to [Yardstick Documentation](https://github.com/gridgain/yardstick) for common Yardstick properties and command line arguments for running Yardstick scripts.
 
+The following properties can be defined in benchmark properties file:
+
+* `INFINISPAN_INITIAL_HOSTS` - Comma-separated list of hosts, the list is used for nodes discovery
+
 The following Infinispan benchmark properties can be defined in the benchmark configuration:
 
 * `-nn <num>` or `--nodeNumber <num>` - Number of nodes (automatically set in `benchmark.properties`), used to wait for the specified number of nodes to start
