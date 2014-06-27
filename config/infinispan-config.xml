@@ -23,7 +23,7 @@
     <global>
         <transport>
             <properties>
-                <property name="configurationFile" value="jgroups-tcp.xml"/>
+                <property name="configurationFile" value="config/infinispan-jgroups.xml"/>
             </properties>
         </transport>
     </global>

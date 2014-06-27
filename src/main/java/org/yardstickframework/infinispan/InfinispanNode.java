@@ -35,9 +35,6 @@ import static org.yardstickframework.BenchmarkUtils.*;
  */
 public class InfinispanNode implements BenchmarkServer {
     /** */
-    public static final String INITIAL_HOSTS = "INFINISPAN_INITIAL_HOSTS";
-
-    /** */
     private BasicCacheContainer cacheMgr;
 
     /** */
@@ -67,11 +64,6 @@ public class InfinispanNode implements BenchmarkServer {
         if (clientMode)
             cacheMgr = new RemoteCacheManager();
         else {
-            String hosts = cfg.customProperties().get(INITIAL_HOSTS);
-
-            if (hosts != null && !hosts.isEmpty())
-                System.setProperty("jgroups.tcpping.initial_hosts", hosts);
-
             DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
 
             cache(args, "cache", cacheMgr);
