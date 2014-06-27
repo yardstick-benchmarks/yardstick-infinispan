@@ -35,6 +35,9 @@ import static org.yardstickframework.BenchmarkUtils.*;
  */
 public class InfinispanNode implements BenchmarkServer {
     /** */
+    private static final String NODES_ADDRESSES = "INFINISPAN_NODES_ADDRESSES";
+
+    /** */
     private BasicCacheContainer cacheMgr;
 
     /** */
@@ -61,9 +64,24 @@ public class InfinispanNode implements BenchmarkServer {
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-node>");
 
-        if (clientMode)
-            cacheMgr = new RemoteCacheManager();
+        String nodesAddresses = cfg.customProperties().get(NODES_ADDRESSES);
+
+        if (nodesAddresses == null || nodesAddresses.isEmpty())
+            throw new Exception("Property '" + NODES_ADDRESSES + "' is not defined.");
+
+        if (clientMode) {
+            org.infinispan.client.hotrod.configuration.ConfigurationBuilder builder =
+                new org.infinispan.client.hotrod.configuration.ConfigurationBuilder().
+                    addServers(nodesAddresses.replace(",", ";"));
+
+            cacheMgr = new RemoteCacheManager(builder.build());
+        }
         else {
+            System.setProperty("jgroups.tcpping.initial_hosts", addressesWithPorts(nodesAddresses));
+
+            if (nodesAddresses.contains("localhost") || nodesAddresses.contains("127.0.0.1"))
+                System.setProperty("jgroups.bind_addr", "localhost");
+
             DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
 
             cache(args, "cache", cacheMgr);
@@ -170,5 +188,21 @@ public class InfinispanNode implements BenchmarkServer {
      */
     public BasicCacheContainer cacheContainer() {
         return cacheMgr;
+    }
+
+    /**
+     * @param nodesAddresses Addresses.
+     * @return Nodes addresses.
+     */
+    private static String addressesWithPorts(String nodesAddresses) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String s : nodesAddresses.split(","))
+            sb.append(s).append("[7800]").append(",");
+
+        if (sb.length() > 0)
+            sb.delete(sb.length() - 1, sb.length());
+
+        return sb.toString();
     }
 }

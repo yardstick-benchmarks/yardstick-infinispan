@@ -20,13 +20,14 @@
 <config xmlns="urn:org:jgroups"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-3.4.xsd">
-    <TCP/>
+    <TCP bind_addr="${jgroups.bind_addr}" bind_port="7800"/>
 
-    <MPING break_on_coord_rsp="true"
-           mcast_addr="${jgroups.mping.mcast_addr:228.2.4.6}"
-           mcast_port="${jgroups.mping.mcast_port:43366}"
-           ip_ttl="${jgroups.udp.ip_ttl:2}"
-           num_initial_members="10"/>
+    <TCPPING timeout="3000"
+             initial_hosts="${jgroups.tcpping.initial_hosts}"
+             port_range="5"
+             num_initial_members="10"
+             ergonomics="false"
+    />
     <MERGE2 max_interval="30000" min_interval="10000"/>
 
     <FD_SOCK/>
