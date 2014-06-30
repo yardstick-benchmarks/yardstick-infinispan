@@ -35,6 +35,7 @@ Before running Infinispan benchmarks, run `mvn package` command. This command wi
 The following properties can be defined in benchmark properties file:
 
 * `INFINISPAN_NODES_ADDRESSES` - Comma-separated list of nodes addresses
+* `INFINISPAN_CLIENT_MODE_WAIT_INTERVAL` - Time (in seconds) to wait for all nodes to start in client mode, HotRod client does not support topology listeners
 
 The following Infinispan benchmark properties can be defined in the benchmark configuration:
 

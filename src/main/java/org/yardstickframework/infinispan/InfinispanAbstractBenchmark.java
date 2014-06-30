@@ -29,6 +29,12 @@ import static org.yardstickframework.BenchmarkUtils.*;
  * Abstract class for Infinispan benchmarks.
  */
 public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter {
+    /** */
+    private static final String CLIENT_MODE_WAIT_INTERVAL = "INFINISPAN_CLIENT_MODE_WAIT_INTERVAL";
+
+    /** */
+    private static final long DEFAULT_CLIENT_MODE_WAIT_INTERVAL_IN_SECS = 10;
+
     /** Cache name. */
     private final String cacheName;
 
@@ -60,6 +66,15 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
         node = new InfinispanNode(args.clientMode());
 
         node.start(cfg);
+
+        // HotRodClient does not support topology listeners, we need to wait for the nodes to start.
+        if (args.clientMode()) {
+            long waitInterval = waitInterval();
+
+            println(cfg, "Waiting for " + waitInterval + " seconds for the nodes to start...");
+
+            Thread.sleep(waitInterval * 1000);
+        }
 
         cache = node.cacheContainer().getCache(cacheName);
 
@@ -134,5 +149,17 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
      */
     protected int nextRandom(int min, int max) {
         return ThreadLocalRandom.current().nextInt(max - min) + min;
+    }
+
+    /**
+     * @return Wait interval.
+     */
+    private long waitInterval() {
+        try {
+            return Long.parseLong(cfg.customProperties().get(CLIENT_MODE_WAIT_INTERVAL));
+        }
+        catch (NumberFormatException ignore) {
+            return DEFAULT_CLIENT_MODE_WAIT_INTERVAL_IN_SECS;
+        }
     }
 }
