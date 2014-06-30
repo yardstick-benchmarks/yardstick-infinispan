@@ -17,15 +17,20 @@ package org.yardstickframework.infinispan;
 import org.apache.log4j.*;
 import org.infinispan.*;
 import org.infinispan.client.hotrod.*;
+import org.infinispan.client.hotrod.marshall.*;
 import org.infinispan.commons.api.*;
 import org.infinispan.configuration.cache.*;
 import org.infinispan.manager.*;
+import org.infinispan.protostream.*;
+import org.infinispan.query.remote.*;
 import org.infinispan.server.hotrod.*;
 import org.infinispan.server.hotrod.configuration.*;
 import org.infinispan.transaction.*;
 import org.jboss.netty.channel.*;
 import org.yardstickframework.*;
+import org.yardstickframework.infinispan.protobuf.*;
 
+import java.io.*;
 import java.net.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
@@ -43,17 +48,24 @@ public class InfinispanNode implements BenchmarkServer {
     /** */
     private HotRodServer hotRodServer;
 
-    /** Client mode. */
+    /** */
     private boolean clientMode;
+
+    /** */
+    private boolean queryEnabled;
 
     /** */
     public InfinispanNode() {
         // No-op.
     }
 
-    /** */
-    public InfinispanNode(boolean clientMode) {
+    /**
+     * @param clientMode Client mode.
+     * @param queryEnabled Query enabled.
+     */
+    public InfinispanNode(boolean clientMode, boolean queryEnabled) {
         this.clientMode = clientMode;
+        this.queryEnabled = queryEnabled;
     }
 
     /** {@inheritDoc} */
@@ -74,7 +86,25 @@ public class InfinispanNode implements BenchmarkServer {
                 new org.infinispan.client.hotrod.configuration.ConfigurationBuilder().
                     addServers(nodesAddresses.replace(",", ";"));
 
-            cacheMgr = new RemoteCacheManager(builder.build());
+            RemoteCacheManager rmtCacheManager;
+
+            if (queryEnabled) {
+                builder.marshaller(new ProtoStreamMarshaller());
+
+                rmtCacheManager = new RemoteCacheManager(builder.build());
+
+                SerializationContext serCtx = ProtoStreamMarshaller.getSerializationContext(rmtCacheManager);
+
+                try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
+                    serCtx.registerProtofile(is);
+                }
+
+                serCtx.registerMarshaller(PersonProtobuf.Person.class, new PersonMarshaller());
+            }
+            else
+                rmtCacheManager = new RemoteCacheManager(builder.build());
+
+            cacheMgr = rmtCacheManager;
         }
         else {
             System.setProperty("jgroups.tcpping.initial_hosts", addressesWithPorts(nodesAddresses));
@@ -93,6 +123,10 @@ public class InfinispanNode implements BenchmarkServer {
             this.cacheMgr = cacheMgr;
 
             startHotRodServer(cfg, args, cacheMgr);
+
+            try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
+                cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).registerProtofile(is);
+            }
 
             println(cfg, "Infinispan node started.");
         }

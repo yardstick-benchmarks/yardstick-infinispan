@@ -63,7 +63,7 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-driver>");
 
-        node = new InfinispanNode(args.clientMode());
+        node = new InfinispanNode(args.clientMode(), cacheName.equals("queryCache"));
 
         node.start(cfg);
 

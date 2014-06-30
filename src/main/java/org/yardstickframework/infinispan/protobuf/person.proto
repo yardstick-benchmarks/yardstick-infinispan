@@ -1,0 +1,12 @@
+package org.yardstickframework.infinispan;
+
+option java_package = "org.yardstickframework.infinispan.protobuf";
+option java_outer_classname = "PersonProtobuf";
+
+message Person {
+   required int32 id = 1;
+   optional int32 ordId = 2;
+   required string firstName = 3;
+   required string lastName = 4;
+   required double salary = 5;
+}

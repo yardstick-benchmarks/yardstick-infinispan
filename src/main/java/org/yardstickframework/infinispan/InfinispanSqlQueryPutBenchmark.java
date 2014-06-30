@@ -19,9 +19,9 @@ import org.infinispan.client.hotrod.*;
 import org.infinispan.query.*;
 import org.infinispan.query.Search;
 import org.infinispan.query.dsl.*;
+import org.yardstickframework.infinispan.protobuf.*;
 import org.yardstickframework.infinispan.querymodel.*;
 
-import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -42,39 +42,55 @@ public class InfinispanSqlQueryPutBenchmark extends InfinispanAbstractBenchmark 
 
             double maxSalary = salary + 1000;
 
-            Collection<Person> persons = executeQuery(salary, maxSalary);
+            if (args.clientMode()) {
+                QueryFactory qf = org.infinispan.client.hotrod.Search.getQueryFactory((RemoteCache<Object, Object>)cache);
 
-            for (Person p : persons)
-                if (p.getSalary() < salary || p.getSalary() > maxSalary)
-                    throw new Exception("Invalid person retrieved [min=" + salary + ", max=" + maxSalary +
-                        ", person=" + p + ']');
+                Query qry = qf.from(PersonProtobuf.Person.class).having("salary").
+                    between(salary, maxSalary).toBuilder().build();
+
+                for (PersonProtobuf.Person p : qry.<PersonProtobuf.Person>list()) {
+                    if (p.getSalary() < salary || p.getSalary() > maxSalary)
+                        throw new Exception("Invalid person retrieved [min=" + salary + ", max=" + maxSalary +
+                            ", person=" + p + ']');
+                }
+            }
+            else {
+                SearchManager searchMgr = Search.getSearchManager((Cache<Object, Object>)cache);
+
+                QueryFactory qf = searchMgr.getQueryFactory();
+
+                Query qry = qf.from(Person.class).having("salary").between(salary, maxSalary).toBuilder().build();
+
+                for (Person p : qry.<Person>list()) {
+                    if (p.getSalary() < salary || p.getSalary() > maxSalary)
+                        throw new Exception("Invalid person retrieved [min=" + salary + ", max=" + maxSalary +
+                            ", person=" + p + ']');
+                }
+            }
         }
         else {
             int i = rnd.nextInt(args.range());
 
-            cache.put(i, new Person(i, "firstName" + i, "lastName" + i, i * 1000));
+            cache.put(i, createPerson(i, "firstName" + i, "lastName" + i, i * 1000));
         }
     }
 
     /**
-     * @param minSalary Min salary.
-     * @param maxSalary Max salary.
-     * @return Query results.
-     * @throws Exception If failed.
+     * @param id Id.
+     * @param firstName First name.
+     * @param lastName Last name.
+     * @param salary Salary.
+     * @return Person.
      */
-    private Collection<Person> executeQuery(double minSalary, double maxSalary) throws Exception {
-        QueryFactory qf;
-
+    private Object createPerson(int id, String firstName, String lastName, double salary) {
         if (args.clientMode())
-            qf = org.infinispan.client.hotrod.Search.getQueryFactory((RemoteCache<Object, Object>)cache);
-        else {
-            SearchManager searchMgr = Search.getSearchManager((Cache<Object, Object>)cache);
-
-            qf = searchMgr.getQueryFactory();
-        }
-
-        Query qry = qf.from(Person.class).having("salary").between(minSalary, maxSalary).toBuilder().build();
-
-        return qry.list();
+            return PersonProtobuf.Person.newBuilder().
+                setId(id).
+                setFirstName(firstName).
+                setLastName(lastName).
+                setSalary(salary).
+                build();
+        else
+            return new Person(id, firstName, lastName, salary);
     }
 }

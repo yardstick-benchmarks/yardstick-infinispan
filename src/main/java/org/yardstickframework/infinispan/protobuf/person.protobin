@@ -1,0 +1,11 @@
+
+ô
+7org/yardstickframework/infinispan/protobuf/person.proto!org.yardstickframework.infinispan"X
+Person
+
+id (
+ordId (
+	firstName (	
+lastName (	
+salary (B<
+*org.yardstickframework.infinispan.protobufBPersonProtobuf
