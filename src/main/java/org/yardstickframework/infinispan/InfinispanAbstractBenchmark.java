@@ -71,6 +71,8 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
         if (args.clientMode()) {
             long waitInterval = waitInterval();
 
+            println(cfg, "NOTE: Make sure that '-cm' or '--clientMode' option is passed to all nodes, " +
+                "if Infinispan is run in client mode.");
             println(cfg, "Waiting for " + waitInterval + " seconds for the nodes to start...");
 
             Thread.sleep(waitInterval * 1000);

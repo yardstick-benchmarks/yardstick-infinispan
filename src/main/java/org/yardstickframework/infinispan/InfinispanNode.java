@@ -26,6 +26,7 @@ import org.infinispan.query.remote.*;
 import org.infinispan.server.hotrod.*;
 import org.infinispan.server.hotrod.configuration.*;
 import org.infinispan.transaction.*;
+import org.infinispan.util.concurrent.*;
 import org.jboss.netty.channel.*;
 import org.yardstickframework.*;
 import org.yardstickframework.infinispan.protobuf.*;
@@ -122,7 +123,8 @@ public class InfinispanNode implements BenchmarkServer {
 
             this.cacheMgr = cacheMgr;
 
-            startHotRodServer(cfg, args, cacheMgr);
+            if (args.clientMode())
+                startHotRodServer(cfg, args, cacheMgr);
 
             try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
                 cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).registerProtofile(is);
@@ -148,9 +150,10 @@ public class InfinispanNode implements BenchmarkServer {
         cfgBuilder.clustering().hash().numOwners(args.backups() + 1);
 
         // READ_COMMITTED isolation level is used by default.
-/*
-        cfgBuilder.locking().isolationLevel(IsolationLevel.REPEATABLE_READ);
-*/
+        // HotRodServer can not start if REPEATABLE_READ is set.
+        if (!args.clientMode())
+            cfgBuilder.locking().isolationLevel(IsolationLevel.REPEATABLE_READ);
+
         // By default, transactional cache is optimistic.
         cfg.transaction().lockingMode(args.txPessimistic() ? LockingMode.PESSIMISTIC : LockingMode.OPTIMISTIC);
 
