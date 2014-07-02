@@ -123,11 +123,13 @@ public class InfinispanNode implements BenchmarkServer {
 
             this.cacheMgr = cacheMgr;
 
-            if (args.clientMode())
+            if (args.clientMode()) {
                 startHotRodServer(cfg, args, cacheMgr);
 
-            try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
-                cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).registerProtofile(is);
+                try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
+                    cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).
+                        registerProtofile(is);
+                }
             }
 
             println(cfg, "Infinispan node started.");

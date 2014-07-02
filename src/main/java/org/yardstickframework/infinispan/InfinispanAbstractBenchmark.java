@@ -35,16 +35,16 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
     /** */
     private static final long DEFAULT_CLIENT_MODE_WAIT_INTERVAL_IN_SECS = 10;
 
-    /** Cache name. */
+    /** */
     private final String cacheName;
 
-    /** Arguments. */
+    /** */
     protected final InfinispanBenchmarkArguments args = new InfinispanBenchmarkArguments();
 
-    /** Node. */
+    /** */
     private InfinispanNode node;
 
-    /** Cache. */
+    /** */
     protected BasicCache<Object, Object> cache;
 
     /** */
