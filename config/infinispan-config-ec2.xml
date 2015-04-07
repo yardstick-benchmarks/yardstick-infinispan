@@ -37,7 +37,7 @@
 
         <distributed-cache name="transactional">
             <transaction transaction-manager-lookup="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup"
-                    auto-commit="false" mode="NON_XA" locking="PESSIMISTIC" protocol="TOTAL_ORDER"/>
+                    auto-commit="false" mode="NON_XA" locking="PESSIMISTIC" />
         </distributed-cache>
     </cache-container>
 </infinispan>
