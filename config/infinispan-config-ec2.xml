@@ -32,7 +32,7 @@
         <distributed-cache name="cache"/>
 
         <distributed-cache name="queryCache">
-            <indexing index="LOCAL" />
+            <indexing index="ALL" />
         </distributed-cache>
 
         <distributed-cache name="transactional">
