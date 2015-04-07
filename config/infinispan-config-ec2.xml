@@ -25,6 +25,8 @@
     </jgroups>
 
     <cache-container default-cache="default">
+        <transport stack="configurationFile"/>
+
         <distributed-cache name="default"/>
 
         <distributed-cache name="cache"/>
