@@ -155,7 +155,7 @@ public class InfinispanNode implements BenchmarkServer {
         String awsSecretKey = System.getenv("AWS_SECRET_KEY");
 
         if (awsSecretKey != null)
-            System.setProperty("jgroups.s3.secret_access_key", awsAccessKey);
+            System.setProperty("jgroups.s3.secret_access_key", awsSecretKey);
 
         System.setProperty("jgroups.s3.bucket", "infinispan-yardstick-benchmark");
     }
