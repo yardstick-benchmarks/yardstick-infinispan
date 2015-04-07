@@ -142,17 +142,17 @@ public class InfinispanNode implements BenchmarkServer {
     private void initEc2Variables() {
         String ipAddress = System.getenv("LOCAL_IP");
 
-        if (!ipAddress.isEmpty())
+        if (ipAddress != null)
             System.setProperty("jgroups.tcp.address", ipAddress);
 
         String awsAccessKey = System.getenv("AWS_ACCESS_KEY");
 
-        if (!awsAccessKey.isEmpty())
+        if (awsAccessKey != null)
             System.setProperty("jgroups.s3.access_key", awsAccessKey);
 
         String awsSecretKey = System.getenv("AWS_SECRET_KEY");
 
-        if (!awsSecretKey.isEmpty())
+        if (awsSecretKey != null)
             System.setProperty("jgroups.s3.secret_access_key", awsAccessKey);
 
         System.setProperty("jgroups.s3.bucket", "infinispan-yardstick-benchmark");
