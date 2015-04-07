@@ -33,7 +33,6 @@ import org.yardstickframework.infinispan.protobuf.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.stream.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -130,18 +129,8 @@ public class InfinispanNode implements BenchmarkServer {
 
             this.cacheMgr = cacheMgr;
 
-            if (args.clientMode()) {
+            if (args.clientMode())
                 startHotRodServer(cfg, args, cacheMgr);
-
-                try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.proto")) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                        String content = br.lines().collect(Collectors.joining(System.lineSeparator()));
-
-                        cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).
-                                registerProtofile("person", content);
-                    }
-                }
-            }
 
             println(cfg, "Infinispan node started.");
         }
