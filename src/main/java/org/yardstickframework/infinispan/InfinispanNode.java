@@ -140,6 +140,8 @@ public class InfinispanNode implements BenchmarkServer {
      * Init ec2 properties.
      */
     private void initEc2Variables() {
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+
         String ipAddress = System.getenv("LOCAL_IP");
 
         if (ipAddress != null)
