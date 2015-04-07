@@ -93,8 +93,10 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ?
-            cfg.driverName() + args.description() + cfg.defaultDescription() : cfg.description();
+        String desc = BenchmarkUtils.description(cfg, this);
+
+        return desc.isEmpty() ?
+                getClass().getSimpleName() + args.description() + cfg.defaultDescription() : desc;
     }
 
     /** {@inheritDoc} */

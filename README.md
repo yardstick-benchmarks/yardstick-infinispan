@@ -18,8 +18,6 @@ The following benchmarks are provided:
 2. `InfinispanPutGetBenchmark` - benchmarks atomic distributed cache put and get operations together
 3. `InfinispanPutTxBenchmark` - benchmarks transactional distributed cache put operation
 4. `InfinispanPutGetTxBenchmark` - benchmarks transactional distributed cache put and get operations together
-5. `InfinispanSqlQueryBenchmark` - benchmarks distributed SQL query over cached data
-6. `InfinispanSqlQueryPutBenchmark` - benchmarks distributed SQL query with simultaneous cache updates
 
 ## Writing Infinispan Benchmarks
 All benchmarks extend `InfinispanAbstractBenchmark` class. A new benchmark should also extend this abstract class and implement `test` method. This is the method that is actually benchmarked.

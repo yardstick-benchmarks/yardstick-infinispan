@@ -14,6 +14,8 @@
 
 package org.yardstickframework.infinispan;
 
+import java.util.*;
+
 /**
  * Infinispan benchmark that performs put operations.
  */
@@ -24,9 +26,11 @@ public class InfinispanPutBenchmark extends InfinispanAbstractBenchmark {
     }
 
     /** {@inheritDoc} */
-    @Override public void test() throws Exception {
+    @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         int key = nextRandom(args.range());
 
         cache.put(key, new SampleValue(key));
+
+        return true;
     }
 }

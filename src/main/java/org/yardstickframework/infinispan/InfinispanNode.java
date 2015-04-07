@@ -14,6 +14,7 @@
 
 package org.yardstickframework.infinispan;
 
+import io.netty.channel.*;
 import org.apache.log4j.*;
 import org.infinispan.*;
 import org.infinispan.client.hotrod.*;
@@ -27,12 +28,12 @@ import org.infinispan.server.hotrod.*;
 import org.infinispan.server.hotrod.configuration.*;
 import org.infinispan.transaction.*;
 import org.infinispan.util.concurrent.*;
-import org.jboss.netty.channel.*;
 import org.yardstickframework.*;
 import org.yardstickframework.infinispan.protobuf.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.stream.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -79,6 +80,8 @@ public class InfinispanNode implements BenchmarkServer {
 
         String nodesAddresses = cfg.customProperties().get(NODES_ADDRESSES);
 
+        initEc2Variables();
+
         if (nodesAddresses == null || nodesAddresses.isEmpty())
             throw new Exception("Property '" + NODES_ADDRESSES + "' is not defined.");
 
@@ -96,11 +99,15 @@ public class InfinispanNode implements BenchmarkServer {
 
                 SerializationContext serCtx = ProtoStreamMarshaller.getSerializationContext(rmtCacheManager);
 
+                FileDescriptorSource fileDescSource = new FileDescriptorSource();
+
                 try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
-                    serCtx.registerProtofile(is);
+                    fileDescSource.addProtoFile("person", is);
                 }
 
-                serCtx.registerMarshaller(PersonProtobuf.Person.class, new PersonMarshaller());
+                serCtx.registerProtoFiles(fileDescSource);
+
+                serCtx.registerMarshaller(new PersonMarshaller());
             }
             else
                 rmtCacheManager = new RemoteCacheManager(builder.build());
@@ -126,14 +133,40 @@ public class InfinispanNode implements BenchmarkServer {
             if (args.clientMode()) {
                 startHotRodServer(cfg, args, cacheMgr);
 
-                try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
-                    cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).
-                        registerProtofile(is);
+                try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.proto")) {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                        String content = br.lines().collect(Collectors.joining(System.lineSeparator()));
+
+                        cacheMgr.getGlobalComponentRegistry().getComponent(ProtobufMetadataManager.class).
+                                registerProtofile("person", content);
+                    }
                 }
             }
 
             println(cfg, "Infinispan node started.");
         }
+    }
+
+    /**
+     * Init ec2 properties.
+     */
+    private void initEc2Variables() {
+        String ipAddress = System.getenv("LOCAL_IP");
+
+        if (!ipAddress.isEmpty())
+            System.setProperty("jgroups.tcp.address", ipAddress);
+
+        String awsAccessKey = System.getenv("AWS_ACCESS_KEY");
+
+        if (!awsAccessKey.isEmpty())
+            System.setProperty("jgroups.s3.access_key", awsAccessKey);
+
+        String awsSecretKey = System.getenv("AWS_SECRET_KEY");
+
+        if (!awsSecretKey.isEmpty())
+            System.setProperty("jgroups.s3.secret_access_key", awsAccessKey);
+
+        System.setProperty("jgroups.s3.bucket", "infinispan-yardstick-benchmark");
     }
 
     /**

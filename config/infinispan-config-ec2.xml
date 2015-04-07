@@ -21,7 +21,7 @@
             xsi:schemaLocation="urn:infinispan:config:7.1 http://www.infinispan.org/schemas/infinispan-config-7.1.xsd"
             xmlns="urn:infinispan:config:7.1">
     <jgroups>
-        <stack-file name="configurationFile" path="config/infinispan-jgroups.xml"/>
+        <stack-file name="configurationFile" path="default-configs/default-jgroups-ec2.xml"/>
     </jgroups>
 
     <cache-container default-cache="default">
@@ -35,7 +35,7 @@
 
         <distributed-cache name="transactional">
             <transaction transaction-manager-lookup="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup"
-                    auto-commit="false" mode="BATCH"/>
+                    auto-commit="false" mode="NON_XA" locking="PESSIMISTIC" protocol="TOTAL_ORDER"/>
         </distributed-cache>
     </cache-container>
 </infinispan>

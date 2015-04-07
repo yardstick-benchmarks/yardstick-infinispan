@@ -18,6 +18,7 @@ import org.infinispan.*;
 import org.yardstickframework.*;
 
 import javax.transaction.*;
+import java.util.*;
 
 /**
  * Infinispan benchmark that performs transactional put and get operations.
@@ -37,7 +38,7 @@ public class InfinispanPutGetTxBenchmark extends InfinispanAbstractBenchmark {
     }
 
     /** {@inheritDoc} */
-    @Override public void test() throws Exception {
+    @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         int key = nextRandom(0, args.range() / 2);
 
         TransactionManager tm = ((Cache)cache).getAdvancedCache().getTransactionManager();
@@ -59,5 +60,7 @@ public class InfinispanPutGetTxBenchmark extends InfinispanAbstractBenchmark {
 
             tm.rollback();
         }
+
+        return true;
     }
 }
