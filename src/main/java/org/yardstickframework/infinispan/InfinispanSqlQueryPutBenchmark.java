@@ -27,11 +27,6 @@ import java.util.concurrent.*;
  * Infinispan benchmark that performs put and query operations.
  */
 public class InfinispanSqlQueryPutBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanSqlQueryPutBenchmark() {
-        super("queryCache");
-    }
-
     /** {@inheritDoc} */
     @Override public boolean test(Map<Object, Object> test) throws Exception {
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
@@ -77,5 +72,10 @@ public class InfinispanSqlQueryPutBenchmark extends InfinispanAbstractBenchmark 
                 build();
         else
             return new Person(id, firstName, lastName, salary);
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "queryCache";
     }
 }

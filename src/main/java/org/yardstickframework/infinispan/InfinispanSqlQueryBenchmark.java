@@ -31,11 +31,6 @@ import static org.yardstickframework.BenchmarkUtils.*;
  * Infinispan benchmark that performs query operations.
  */
 public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanSqlQueryBenchmark() {
-        super("queryCache");
-    }
-
     /** {@inheritDoc} */
     @Override public void setUp(final BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
@@ -59,6 +54,11 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
 
 
         println(cfg, "Finished populating query data in " + ((System.nanoTime() - start) / 1_000_000) + "ms.");
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "queryCache";
     }
 
     /** {@inheritDoc} */

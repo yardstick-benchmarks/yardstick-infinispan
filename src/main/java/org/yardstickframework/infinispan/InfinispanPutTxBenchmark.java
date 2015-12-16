@@ -14,27 +14,26 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.*;
-import org.yardstickframework.*;
-
-import javax.transaction.*;
-import java.util.*;
+import java.util.Map;
+import javax.transaction.TransactionManager;
+import org.infinispan.Cache;
+import org.yardstickframework.BenchmarkConfiguration;
 
 /**
  * Infinispan benchmark that performs transactional put operations.
  */
 public class InfinispanPutTxBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanPutTxBenchmark() {
-        super("transactional");
-    }
-
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
 
         if (args.clientMode())
             throw new IllegalStateException("HotRod Client does not support transactions.");
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "transactional";
     }
 
     /** {@inheritDoc} */

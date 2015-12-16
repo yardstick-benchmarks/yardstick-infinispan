@@ -36,9 +36,6 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
     private static final long DEFAULT_CLIENT_MODE_WAIT_INTERVAL_IN_SECS = 10;
 
     /** */
-    private final String cacheName;
-
-    /** */
     protected final InfinispanBenchmarkArguments args = new InfinispanBenchmarkArguments();
 
     /** */
@@ -50,20 +47,13 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
     /** */
     private final CountDownLatch nodesStartedLatch = new CountDownLatch(1);
 
-    /**
-     * @param cacheName Cache name.
-     */
-    protected InfinispanAbstractBenchmark(String cacheName) {
-        this.cacheName = cacheName;
-    }
-
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-driver>");
 
-        node = new InfinispanNode(args.clientMode(), cacheName.equals("queryCache"));
+        node = new InfinispanNode(args.clientMode(), cacheName().equals("queryCache"));
 
         node.start(cfg);
 
@@ -78,13 +68,18 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
             Thread.sleep(waitInterval * 1000);
         }
 
-        cache = node.cacheContainer().getCache(cacheName);
+        cache = node.cacheContainer().getCache(cacheName());
 
         assert cache != null;
 
         if (!args.clientMode())
             addListener();
     }
+
+    /**
+     * @return Cache name.
+     */
+    protected abstract String cacheName();
 
     /** {@inheritDoc} */
     @Override public void tearDown() throws Exception {

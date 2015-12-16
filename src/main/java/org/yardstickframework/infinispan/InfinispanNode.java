@@ -14,27 +14,35 @@
 
 package org.yardstickframework.infinispan;
 
-import io.netty.channel.*;
-import org.apache.log4j.*;
-import org.infinispan.*;
-import org.infinispan.client.hotrod.*;
-import org.infinispan.client.hotrod.marshall.*;
-import org.infinispan.commons.api.*;
-import org.infinispan.configuration.cache.*;
-import org.infinispan.manager.*;
-import org.infinispan.protostream.*;
-import org.infinispan.query.remote.*;
-import org.infinispan.server.hotrod.*;
-import org.infinispan.server.hotrod.configuration.*;
-import org.infinispan.transaction.*;
-import org.infinispan.util.concurrent.*;
-import org.yardstickframework.*;
-import org.yardstickframework.infinispan.protobuf.*;
+import io.netty.channel.ChannelException;
+import java.io.InputStream;
+import java.net.BindException;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.infinispan.Cache;
+import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.client.hotrod.marshall.ProtoStreamMarshaller;
+import org.infinispan.commons.api.BasicCacheContainer;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.protostream.FileDescriptorSource;
+import org.infinispan.protostream.SerializationContext;
+import org.infinispan.server.hotrod.HotRodServer;
+import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.util.concurrent.IsolationLevel;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkServer;
+import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.infinispan.protobuf.PersonMarshaller;
+import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
 
-import java.io.*;
-import java.net.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.jcommander;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Standalone Infinispan node.
@@ -157,7 +165,10 @@ public class InfinispanNode implements BenchmarkServer {
         if (awsSecretKey != null)
             System.setProperty("jgroups.s3.secret_access_key", awsSecretKey);
 
-        System.setProperty("jgroups.s3.bucket", "infinispan-yardstick-benchmark");
+        String awsBucketName = System.getenv("AWS_BUCKET_NAME");
+
+        if (awsBucketName != null)
+            System.setProperty("jgroups.s3.bucket", awsBucketName);
     }
 
     /**

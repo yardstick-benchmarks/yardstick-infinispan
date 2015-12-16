@@ -20,11 +20,6 @@ import java.util.*;
  * Infinispan benchmark that performs put and get operations.
  */
 public class InfinispanPutGetBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanPutGetBenchmark() {
-        super("cache");
-    }
-
     /** {@inheritDoc} */
     @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         int key = nextRandom(args.range());
@@ -37,5 +32,10 @@ public class InfinispanPutGetBenchmark extends InfinispanAbstractBenchmark {
         cache.put(key, new SampleValue(key));
 
         return true;
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "cache";
     }
 }

@@ -14,23 +14,12 @@
 
 package org.yardstickframework.infinispan;
 
-import java.util.*;
-
 /**
- * Infinispan benchmark that performs put operations.
+ * Infinispan benchmark that performs optimistic transactional putAll operations.
  */
-public class InfinispanPutBenchmark extends InfinispanAbstractBenchmark {
-    /** {@inheritDoc} */
-    @Override public boolean test(Map<Object, Object> ctx) throws Exception {
-        int key = nextRandom(args.range());
-
-        cache.put(key, new SampleValue(key));
-
-        return true;
-    }
-
+public class InfinispanPutAllTxOptimisticBenchmark extends InfinispanPutAllTxBenchmark {
     /** {@inheritDoc} */
     @Override protected String cacheName() {
-        return "cache";
+        return "transactional-optimistic";
     }
 }

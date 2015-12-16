@@ -46,6 +46,10 @@ public class InfinispanBenchmarkArguments {
     private int range = 1_000_000;
 
     /** */
+    @Parameter(names = {"-bs", "--batchSize"}, description = "Batch size")
+    private int batch = 500;
+
+    /** */
     @Parameter(names = {"-txp", "--txPessimistic"}, description = "Pessimistic transaction concurrency")
     private boolean txPessimistic;
 
@@ -82,6 +86,13 @@ public class InfinispanBenchmarkArguments {
      */
     public int range() {
         return range;
+    }
+
+    /**
+     * @return Batch size.
+     */
+    public int batch() {
+        return batch;
     }
 
     /**

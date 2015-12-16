@@ -14,17 +14,25 @@
 
 package org.yardstickframework.infinispan;
 
-import java.util.*;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Infinispan benchmark that performs put operations.
  */
-public class InfinispanPutBenchmark extends InfinispanAbstractBenchmark {
+public class InfinispanPutAllBenchmark extends InfinispanAbstractBenchmark {
     /** {@inheritDoc} */
     @Override public boolean test(Map<Object, Object> ctx) throws Exception {
-        int key = nextRandom(args.range());
+        SortedMap<Integer, Integer> vals = new TreeMap<>();
 
-        cache.put(key, new SampleValue(key));
+        for (int i = 0; i < args.batch(); i++) {
+            int key = nextRandom(args.range());
+
+            vals.put(key, key);
+        }
+
+        cache.putAll(vals);
 
         return true;
     }
