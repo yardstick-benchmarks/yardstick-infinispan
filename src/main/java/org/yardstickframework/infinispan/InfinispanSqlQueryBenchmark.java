@@ -47,11 +47,9 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
 
             int populatedPersons = cnt.incrementAndGet();
 
-            //if (populatedPersons % 100000 == 0)
+            if (populatedPersons % 100000 == 0)
                 println(cfg, "Populated persons: " + populatedPersons);
         }
-
-
 
         println(cfg, "Finished populating query data in " + ((System.nanoTime() - start) / 1_000_000) + "ms.");
     }

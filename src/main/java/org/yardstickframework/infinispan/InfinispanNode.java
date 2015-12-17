@@ -55,13 +55,13 @@ public class InfinispanNode implements BenchmarkServer {
     private BasicCacheContainer cacheMgr;
 
     /** */
-    private HotRodServer hotRodServer;
+    private HotRodServer hotRodSrv;
 
     /** */
     private boolean clientMode;
 
     /** */
-    private boolean queryEnabled;
+    private boolean qryEnabled;
 
     /** */
     public InfinispanNode() {
@@ -70,11 +70,11 @@ public class InfinispanNode implements BenchmarkServer {
 
     /**
      * @param clientMode Client mode.
-     * @param queryEnabled Query enabled.
+     * @param qryEnabled Query enabled.
      */
-    public InfinispanNode(boolean clientMode, boolean queryEnabled) {
+    public InfinispanNode(boolean clientMode, boolean qryEnabled) {
         this.clientMode = clientMode;
-        this.queryEnabled = queryEnabled;
+        this.qryEnabled = qryEnabled;
     }
 
     /** {@inheritDoc} */
@@ -85,46 +85,46 @@ public class InfinispanNode implements BenchmarkServer {
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-node>");
 
-        String nodesAddresses = cfg.customProperties().get(NODES_ADDRESSES);
+        String nodesAddrs = cfg.customProperties().get(NODES_ADDRESSES);
 
         initEc2Variables();
 
-        if (nodesAddresses == null || nodesAddresses.isEmpty())
+        if (nodesAddrs == null || nodesAddrs.isEmpty())
             throw new Exception("Property '" + NODES_ADDRESSES + "' is not defined.");
 
         if (clientMode) {
             org.infinispan.client.hotrod.configuration.ConfigurationBuilder builder =
                 new org.infinispan.client.hotrod.configuration.ConfigurationBuilder().
-                    addServers(nodesAddresses.replace(",", ";"));
+                    addServers(nodesAddrs.replace(",", ";"));
 
-            RemoteCacheManager rmtCacheManager;
+            RemoteCacheManager rmtCacheMgr;
 
-            if (queryEnabled) {
+            if (qryEnabled) {
                 builder.marshaller(new ProtoStreamMarshaller());
 
-                rmtCacheManager = new RemoteCacheManager(builder.build());
+                rmtCacheMgr = new RemoteCacheManager(builder.build());
 
-                SerializationContext serCtx = ProtoStreamMarshaller.getSerializationContext(rmtCacheManager);
+                SerializationContext serCtx = ProtoStreamMarshaller.getSerializationContext(rmtCacheMgr);
 
-                FileDescriptorSource fileDescSource = new FileDescriptorSource();
+                FileDescriptorSource fileDescSrc = new FileDescriptorSource();
 
                 try (InputStream is = PersonProtobuf.class.getResourceAsStream("person.protobin")) {
-                    fileDescSource.addProtoFile("person", is);
+                    fileDescSrc.addProtoFile("person", is);
                 }
 
-                serCtx.registerProtoFiles(fileDescSource);
+                serCtx.registerProtoFiles(fileDescSrc);
 
                 serCtx.registerMarshaller(new PersonMarshaller());
             }
             else
-                rmtCacheManager = new RemoteCacheManager(builder.build());
+                rmtCacheMgr = new RemoteCacheManager(builder.build());
 
-            cacheMgr = rmtCacheManager;
+            cacheMgr = rmtCacheMgr;
         }
         else {
-            System.setProperty("jgroups.tcpping.initial_hosts", addressesWithPorts(nodesAddresses));
+            System.setProperty("jgroups.tcpping.initial_hosts", addressesWithPorts(nodesAddrs));
 
-            if (nodesAddresses.contains("localhost") || nodesAddresses.contains("127.0.0.1"))
+            if (nodesAddrs.contains("localhost") || nodesAddrs.contains("127.0.0.1"))
                 System.setProperty("jgroups.bind_addr", "localhost");
 
             DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
@@ -150,10 +150,10 @@ public class InfinispanNode implements BenchmarkServer {
     private void initEc2Variables() {
         System.setProperty("java.net.preferIPv4Stack" , "true");
 
-        String ipAddress = System.getenv("LOCAL_IP");
+        String ipAddr = System.getenv("LOCAL_IP");
 
-        if (ipAddress != null)
-            System.setProperty("jgroups.tcp.address", ipAddress);
+        if (ipAddr != null)
+            System.setProperty("jgroups.tcp.address", ipAddr);
 
         String awsAccessKey = System.getenv("AWS_ACCESS_KEY");
 
@@ -216,9 +216,9 @@ public class InfinispanNode implements BenchmarkServer {
             try {
                 HotRodServerConfigurationBuilder builder = new HotRodServerConfigurationBuilder().port(port).host(host);
 
-                hotRodServer = new HotRodServer();
+                hotRodSrv = new HotRodServer();
 
-                hotRodServer.start(builder.build(), cacheMgr);
+                hotRodSrv.start(builder.build(), cacheMgr);
 
                 println(cfg, "HotRodServer is started on host " + host + ", port " + port + ".");
 
@@ -248,8 +248,8 @@ public class InfinispanNode implements BenchmarkServer {
         if (cacheMgr != null)
             cacheMgr.stop();
 
-        if (hotRodServer != null)
-            hotRodServer.stop();
+        if (hotRodSrv != null)
+            hotRodSrv.stop();
     }
 
     /** {@inheritDoc} */
