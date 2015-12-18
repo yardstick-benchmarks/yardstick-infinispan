@@ -20,10 +20,10 @@
 <config xmlns="urn:org:jgroups"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-3.4.xsd">
-    <TCP bind_addr="${INFINISPAN_LOCAL_ADDRESS}" bind_port="7800"/>
+    <TCP bind_addr="${jgroups.bind_addr}" bind_port="7800"/>
 
     <TCPPING timeout="3000"
-             initial_hosts="172.31.6.33[7800],172.31.6.34[7800]"
+             initial_hosts="${jgroups.tcpping.initial_hosts}"
              port_range="5"
              num_initial_members="10"
              ergonomics="false"
