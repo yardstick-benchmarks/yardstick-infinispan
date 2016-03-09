@@ -33,8 +33,6 @@ import org.infinispan.protostream.FileDescriptorSource;
 import org.infinispan.protostream.SerializationContext;
 import org.infinispan.server.hotrod.HotRodServer;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
-import org.infinispan.transaction.LockingMode;
-import org.infinispan.util.concurrent.IsolationLevel;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkServer;
 import org.yardstickframework.BenchmarkUtils;
@@ -186,13 +184,11 @@ public class InfinispanNode implements BenchmarkServer {
 
         cfgBuilder.clustering().hash().numOwners(args.backups() + 1);
 
-        // READ_COMMITTED isolation level is used by default.
         // HotRodServer can not start if REPEATABLE_READ is set.
         if (!args.clientMode())
-            cfgBuilder.locking().isolationLevel(IsolationLevel.REPEATABLE_READ);
+            cfgBuilder.locking().isolationLevel(args.txIsolation());
 
-        // By default, transactional cache is optimistic.
-        cfg.transaction().lockingMode(args.txPessimistic() ? LockingMode.PESSIMISTIC : LockingMode.OPTIMISTIC);
+        cfgBuilder.transaction().lockingMode(args.txConcurrency());
 
         cacheMgr.defineConfiguration(cacheName, cfgBuilder.build());
 

@@ -38,10 +38,5 @@
             <transaction transaction-manager-lookup="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup"
                          auto-commit="false" mode="NON_XA" locking="PESSIMISTIC" />
         </distributed-cache>
-
-        <distributed-cache name="transactional-optimistic">
-            <transaction transaction-manager-lookup="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup"
-                         auto-commit="false" mode="NON_XA" locking="OPTIMISTIC" />
-        </distributed-cache>
     </cache-container>
 </infinispan>
