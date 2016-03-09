@@ -14,7 +14,7 @@
 
 package org.yardstickframework.infinispan;
 
-import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
 
 /**
  * Input arguments for Infinispan benchmarks.

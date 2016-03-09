@@ -14,11 +14,10 @@
 
 package org.yardstickframework.infinispan.protobuf;
 
-import org.infinispan.protostream.*;
+import java.io.IOException;
+import org.infinispan.protostream.MessageMarshaller;
 
-import java.io.*;
-
-import static org.yardstickframework.infinispan.protobuf.PersonProtobuf.*;
+import static org.yardstickframework.infinispan.protobuf.PersonProtobuf.Person;
 
 /**
  * Infinispan Person marshaller.

@@ -14,18 +14,18 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.*;
-import org.infinispan.query.*;
-import org.infinispan.query.dsl.*;
-import org.yardstickframework.*;
-import org.yardstickframework.infinispan.protobuf.*;
-import org.yardstickframework.infinispan.querymodel.*;
-
 import java.util.Map;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.infinispan.Cache;
+import org.infinispan.query.Search;
+import org.infinispan.query.dsl.Query;
+import org.infinispan.query.dsl.QueryFactory;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
+import org.yardstickframework.infinispan.querymodel.Person;
 
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Infinispan benchmark that performs query operations.

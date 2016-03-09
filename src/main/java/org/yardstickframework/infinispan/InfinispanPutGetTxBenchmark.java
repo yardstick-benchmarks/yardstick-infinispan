@@ -14,11 +14,10 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.*;
-import org.yardstickframework.*;
-
-import javax.transaction.*;
-import java.util.*;
+import java.util.Map;
+import javax.transaction.TransactionManager;
+import org.infinispan.Cache;
+import org.yardstickframework.BenchmarkConfiguration;
 
 /**
  * Infinispan benchmark that performs transactional put and get operations.

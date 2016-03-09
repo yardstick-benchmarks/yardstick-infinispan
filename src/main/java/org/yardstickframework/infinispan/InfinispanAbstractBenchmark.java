@@ -14,16 +14,20 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.commons.api.*;
-import org.infinispan.manager.*;
-import org.infinispan.notifications.*;
-import org.infinispan.notifications.cachelistener.annotation.*;
-import org.infinispan.notifications.cachelistener.event.*;
-import org.yardstickframework.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import org.infinispan.commons.api.BasicCache;
+import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.notifications.Listenable;
+import org.infinispan.notifications.Listener;
+import org.infinispan.notifications.cachelistener.annotation.TopologyChanged;
+import org.infinispan.notifications.cachelistener.event.TopologyChangedEvent;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriverAdapter;
+import org.yardstickframework.BenchmarkUtils;
 
-import java.util.concurrent.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.jcommander;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Abstract class for Infinispan benchmarks.
