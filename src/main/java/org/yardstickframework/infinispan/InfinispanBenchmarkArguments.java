@@ -14,7 +14,9 @@
 
 package org.yardstickframework.infinispan;
 
-import com.beust.jcommander.*;
+import com.beust.jcommander.Parameter;
+import org.infinispan.transaction.LockingMode;
+import org.infinispan.util.concurrent.IsolationLevel;
 
 /**
  * Input arguments for Infinispan benchmarks.
@@ -46,8 +48,16 @@ public class InfinispanBenchmarkArguments {
     private int range = 1_000_000;
 
     /** */
-    @Parameter(names = {"-txp", "--txPessimistic"}, description = "Pessimistic transaction concurrency")
-    private boolean txPessimistic;
+    @Parameter(names = {"-bs", "--batchSize"}, description = "Batch size")
+    private int batch = 500;
+
+    /** */
+    @Parameter(names = {"-txc", "--txConcurrency"}, description = "Transaction concurrency")
+    private LockingMode txConcurrency = LockingMode.PESSIMISTIC;
+
+    /** */
+    @Parameter(names = {"-txi", "--txIsolation"}, description = "Transaction isolation")
+    private IsolationLevel txIsolation = IsolationLevel.REPEATABLE_READ;
 
     /**
      * @return {@code True} whether communication is asynchronous or not.
@@ -85,6 +95,13 @@ public class InfinispanBenchmarkArguments {
     }
 
     /**
+     * @return Batch size.
+     */
+    public int batch() {
+        return batch;
+    }
+
+    /**
      * @return Configuration file.
      */
     public String configuration() {
@@ -92,17 +109,24 @@ public class InfinispanBenchmarkArguments {
     }
 
     /**
-     * @return {@code True} whether transaction concurrency is pessimistic or not.
+     * @return Transaction concurrency.
      */
-    public boolean txPessimistic() {
-        return txPessimistic;
+    public LockingMode txConcurrency() {
+        return txConcurrency;
+    }
+
+    /**
+     * @return Transaction isolation.
+     */
+    public IsolationLevel txIsolation() {
+        return txIsolation;
     }
 
     /**
      * @return Description.
      */
     public String description() {
-        return "-nn=" + nodes + "-b=" + backups + "-as=" + async + "-cm=" + clientMode + "-txp=" + txPessimistic;
+        return "-nn=" + nodes + "-b=" + backups + "-as=" + async + "-cm=" + clientMode + "-txc=" + txConcurrency;
     }
 
     /** {@inheritDoc} */
@@ -113,7 +137,7 @@ public class InfinispanBenchmarkArguments {
             ", isConfig='" + isCfg + '\'' +
             ", async=" + async +
             ", clientMode=" + clientMode +
-            ", txPessimistic=" + txPessimistic +
+            ", txConcurrency=" + txConcurrency +
             ", range=" + range +
             ']';
     }

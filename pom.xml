@@ -51,7 +51,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <yardstick.version>RELEASE</yardstick.version>
-        <infinispan.version>7.1.1.Final</infinispan.version>
+        <infinispan.version>8.1.2.Final</infinispan.version>
     </properties>
 
     <dependencies>

@@ -15,14 +15,16 @@
 package org.yardstickframework.infinispan;
 
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.transaction.TransactionManager;
 import org.infinispan.Cache;
 import org.yardstickframework.BenchmarkConfiguration;
 
 /**
- * Infinispan benchmark that performs transactional put and get operations.
+ * Infinispan benchmark that performs transactional put operations.
  */
-public class InfinispanPutGetTxBenchmark extends InfinispanAbstractBenchmark {
+public class InfinispanPutAllTxBenchmark extends InfinispanAbstractBenchmark {
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
@@ -38,19 +40,20 @@ public class InfinispanPutGetTxBenchmark extends InfinispanAbstractBenchmark {
 
     /** {@inheritDoc} */
     @Override public boolean test(Map<Object, Object> ctx) throws Exception {
-        int key = nextRandom(0, args.range() / 2);
-
         TransactionManager tm = ((Cache)cache).getAdvancedCache().getTransactionManager();
 
         tm.begin();
 
         try {
-            Object val = cache.get(key);
+            SortedMap<Integer, Integer> vals = new TreeMap<>();
 
-            if (val != null)
-                key = nextRandom(args.range() / 2, args.range());
+            for (int i = 0; i < args.batch(); i++) {
+                int key = nextRandom(args.range());
 
-            cache.put(key, new SampleValue(key));
+                vals.put(key, key);
+            }
+
+            cache.putAll(vals);
 
             tm.commit();
         }

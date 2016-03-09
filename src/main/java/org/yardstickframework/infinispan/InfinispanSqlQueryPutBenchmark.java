@@ -14,24 +14,19 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.*;
-import org.infinispan.query.*;
-import org.infinispan.query.dsl.*;
-import org.yardstickframework.infinispan.protobuf.*;
-import org.yardstickframework.infinispan.querymodel.*;
-
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import org.infinispan.Cache;
+import org.infinispan.query.Search;
+import org.infinispan.query.dsl.Query;
+import org.infinispan.query.dsl.QueryFactory;
+import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
+import org.yardstickframework.infinispan.querymodel.Person;
 
 /**
  * Infinispan benchmark that performs put and query operations.
  */
 public class InfinispanSqlQueryPutBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanSqlQueryPutBenchmark() {
-        super("queryCache");
-    }
-
     /** {@inheritDoc} */
     @Override public boolean test(Map<Object, Object> test) throws Exception {
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
@@ -77,5 +72,10 @@ public class InfinispanSqlQueryPutBenchmark extends InfinispanAbstractBenchmark 
                 build();
         else
             return new Person(id, firstName, lastName, salary);
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "queryCache";
     }
 }

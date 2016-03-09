@@ -14,28 +14,23 @@
 
 package org.yardstickframework.infinispan;
 
-import org.infinispan.*;
-import org.infinispan.query.*;
-import org.infinispan.query.dsl.*;
-import org.yardstickframework.*;
-import org.yardstickframework.infinispan.protobuf.*;
-import org.yardstickframework.infinispan.querymodel.*;
-
 import java.util.Map;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.infinispan.Cache;
+import org.infinispan.query.Search;
+import org.infinispan.query.dsl.Query;
+import org.infinispan.query.dsl.QueryFactory;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
+import org.yardstickframework.infinispan.querymodel.Person;
 
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Infinispan benchmark that performs query operations.
  */
 public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
-    /** */
-    public InfinispanSqlQueryBenchmark() {
-        super("queryCache");
-    }
-
     /** {@inheritDoc} */
     @Override public void setUp(final BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
@@ -52,13 +47,16 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
 
             int populatedPersons = cnt.incrementAndGet();
 
-            //if (populatedPersons % 100000 == 0)
+            if (populatedPersons % 100000 == 0)
                 println(cfg, "Populated persons: " + populatedPersons);
         }
 
-
-
         println(cfg, "Finished populating query data in " + ((System.nanoTime() - start) / 1_000_000) + "ms.");
+    }
+
+    /** {@inheritDoc} */
+    @Override protected String cacheName() {
+        return "queryCache";
     }
 
     /** {@inheritDoc} */

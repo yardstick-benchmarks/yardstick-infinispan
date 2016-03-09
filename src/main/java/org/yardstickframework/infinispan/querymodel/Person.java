@@ -14,9 +14,15 @@
 
 package org.yardstickframework.infinispan.querymodel;
 
-import org.hibernate.search.annotations.*;
-
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.NumericField;
+import org.hibernate.search.annotations.Store;
 
 /**
  * Person record used for query test.
