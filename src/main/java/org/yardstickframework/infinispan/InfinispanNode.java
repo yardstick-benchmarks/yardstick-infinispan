@@ -47,9 +47,6 @@ import static org.yardstickframework.BenchmarkUtils.println;
  */
 public class InfinispanNode implements BenchmarkServer {
     /** */
-    private static final String NODES_ADDRESSES = "INFINISPAN_NODES_ADDRESSES";
-
-    /** */
     private BasicCacheContainer cacheMgr;
 
     /** */
@@ -83,12 +80,10 @@ public class InfinispanNode implements BenchmarkServer {
 
         jcommander(cfg.commandLineArguments(), args, "<infinispan-node>");
 
-        String nodesAddrs = cfg.customProperties().get(NODES_ADDRESSES);
+        String nodesAddrs = cfg.customProperties().get("DRIVER_HOSTS") + ','
+            + cfg.customProperties().get("SERVER_HOSTS");
 
         initEc2Variables();
-
-        if (nodesAddrs == null || nodesAddrs.isEmpty())
-            throw new Exception("Property '" + NODES_ADDRESSES + "' is not defined.");
 
         if (clientMode) {
             org.infinispan.client.hotrod.configuration.ConfigurationBuilder builder =
