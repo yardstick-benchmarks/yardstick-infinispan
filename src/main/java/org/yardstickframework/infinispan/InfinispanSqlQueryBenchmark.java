@@ -17,7 +17,9 @@ package org.yardstickframework.infinispan;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
+import org.infinispan.context.Flag;
 import org.infinispan.query.Search;
 import org.infinispan.query.dsl.Query;
 import org.infinispan.query.dsl.QueryFactory;
@@ -42,14 +44,22 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
         final AtomicInteger cnt = new AtomicInteger(0);
 
         // Populate persons.
-        for (int i = 0; i < args.range() && !Thread.currentThread().isInterrupted(); i++) {
-            cache.put(i, createPerson(i, "firstName" + i, "lastName" + i, i * 1000));
+        final AdvancedCache<Integer, Object> cacheSkipIndexing = ((AdvancedCache)cache).withFlags(Flag.SKIP_INDEXING);
 
+        for (int i = 0; i < args.range() && !Thread.currentThread().isInterrupted(); i++) {
             int populatedPersons = cnt.incrementAndGet();
 
-            if (populatedPersons % 100000 == 0)
+            cacheSkipIndexing.put(i, createPerson(i, "firstName" + i, "lastName" + i, i * 1000));
+
+            if (populatedPersons % 10_000 == 0)
                 println(cfg, "Populated persons: " + populatedPersons);
         }
+
+        println(cfg, "Indexing of populated data...");
+
+        Search.getSearchManager((Cache<?, ?>)cache).getMassIndexer().start();
+
+        println(cfg, "Indexing of data finished.");
 
         println(cfg, "Finished populating query data in " + ((System.nanoTime() - start) / 1_000_000) + "ms.");
     }
