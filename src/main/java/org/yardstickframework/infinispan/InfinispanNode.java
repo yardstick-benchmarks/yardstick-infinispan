@@ -33,6 +33,7 @@ import org.infinispan.protostream.FileDescriptorSource;
 import org.infinispan.protostream.SerializationContext;
 import org.infinispan.server.hotrod.HotRodServer;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
+import org.infinispan.util.concurrent.IsolationLevel;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkServer;
 import org.yardstickframework.BenchmarkUtils;
@@ -122,11 +123,11 @@ public class InfinispanNode implements BenchmarkServer {
 
             DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
 
-            cache(args, "cache", cacheMgr);
+            cache(args, "cache", cacheMgr, cfg);
 
-            cache(args, "transactional", cacheMgr);
+            cache(args, "transactional", cacheMgr, cfg);
 
-            cache(args, "queryCache", cacheMgr);
+            cache(args, "queryCache", cacheMgr, cfg);
 
             this.cacheMgr = cacheMgr;
 
@@ -168,9 +169,11 @@ public class InfinispanNode implements BenchmarkServer {
      * @param args Arguments.
      * @param cacheName Cache name.
      * @param cacheMgr Default cache manager.
+     * @param bcfg Benchmark configuration.
      * @return Cache.
      */
-    private Cache<Object, Object> cache(InfinispanBenchmarkArguments args, String cacheName, DefaultCacheManager cacheMgr) {
+    private Cache<Object, Object> cache(InfinispanBenchmarkArguments args, String cacheName,
+        DefaultCacheManager cacheMgr, BenchmarkConfiguration bcfg) {
         Configuration cfg = cacheMgr.getCacheConfiguration(cacheName);
 
         ConfigurationBuilder cfgBuilder = new ConfigurationBuilder().read(cfg);
@@ -180,14 +183,27 @@ public class InfinispanNode implements BenchmarkServer {
         cfgBuilder.clustering().hash().numOwners(args.backups() + 1);
 
         // HotRodServer can not start if REPEATABLE_READ is set.
-        if (!args.clientMode())
+        if (!args.clientMode()) {
+            if (args.txIsolation() == IsolationLevel.SERIALIZABLE)
+                println(bcfg, "[WARNING] Infinispan doesn't actually support the SERIALIZABLE isolation level, " +
+                    "instead automatically it downgrades to REPEATABLE_READ.");
+
             cfgBuilder.locking().isolationLevel(args.txIsolation());
+        }
 
         cfgBuilder.transaction().lockingMode(args.txConcurrency());
 
         cacheMgr.defineConfiguration(cacheName, cfgBuilder.build());
 
-        return cacheMgr.getCache(cacheName);
+        Cache cache = cacheMgr.getCache(cacheName);
+
+        Configuration ccfg = cache.getCacheConfiguration();
+
+        println(bcfg, "Started cache [name=" + cacheName + ", txMode=" + ccfg.transaction().transactionMode()
+            + ", lockingMode=" + ccfg.transaction().lockingMode() + ", isolationMode="
+            + ccfg.locking().isolationLevel() + ", indexing=" + ccfg.indexing().index() + ", fullCacheCfg=" + ccfg);
+
+        return cache;
     }
 
     /**

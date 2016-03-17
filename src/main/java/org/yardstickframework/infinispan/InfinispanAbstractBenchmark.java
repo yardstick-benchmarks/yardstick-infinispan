@@ -16,6 +16,7 @@ package org.yardstickframework.infinispan;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
+import org.infinispan.Cache;
 import org.infinispan.commons.api.BasicCache;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.notifications.Listenable;
@@ -114,6 +115,8 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
 
             nodesStartedLatch.await();
         }
+
+        println(cfg, "Benchmark started with " + ((Cache)cache).getCacheManager().getMembers().size() + " data nodes.");
     }
 
     /**
@@ -132,8 +135,12 @@ public abstract class InfinispanAbstractBenchmark extends BenchmarkDriverAdapter
          */
         @TopologyChanged
         public void onEvent(TopologyChangedEvent evt) {
-            if (!evt.isPre() && nodesStarted(evt.getCache().getCacheManager()))
-                nodesStartedLatch.countDown();
+            if (!evt.isPre()) {
+                println(cfg, "Topology changed [nodes=" + evt.getCache().getCacheManager().getMembers().size() + "]");
+
+                if (nodesStarted(evt.getCache().getCacheManager()))
+                    nodesStartedLatch.countDown();
+            }
         }
     }
 
