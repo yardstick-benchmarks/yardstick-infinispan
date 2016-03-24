@@ -41,7 +41,7 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
 
         long start = System.nanoTime();
 
-        final AtomicInteger cnt = new AtomicInteger(0);
+        final AtomicInteger cnt = new AtomicInteger();
 
         // Populate persons.
         final AdvancedCache<Integer, Object> cacheSkipIndexing = ((AdvancedCache)cache).withFlags(Flag.SKIP_INDEXING);
@@ -75,7 +75,7 @@ public class InfinispanSqlQueryBenchmark extends InfinispanAbstractBenchmark {
 
         double maxSalary = salary + 1000;
 
-        QueryFactory qf = Search.getQueryFactory((Cache<Object, Object>) cache);
+        QueryFactory qf = Search.getQueryFactory((Cache<Object, Object>)cache);
 
         Query qry = qf.from(Person.class).having("salary").between(salary, maxSalary).toBuilder().build();
 

@@ -56,11 +56,12 @@ public class InfinispanPutAllTxBenchmark extends InfinispanAbstractBenchmark {
             cache.putAll(vals);
 
             tm.commit();
-        }
-        catch (Exception e) {
-            e.printStackTrace(cfg.error());
 
-            tm.rollback();
+            tm = null;
+        }
+        finally {
+            if (tm != null)
+                tm.rollback();
         }
 
         return true;

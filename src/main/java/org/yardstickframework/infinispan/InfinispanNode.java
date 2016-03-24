@@ -123,11 +123,11 @@ public class InfinispanNode implements BenchmarkServer {
 
             DefaultCacheManager cacheMgr = new DefaultCacheManager(args.configuration());
 
-            cache(args, "cache", cacheMgr, cfg);
+            initCache(args, "cache", cacheMgr, cfg);
 
-            cache(args, "transactional", cacheMgr, cfg);
+            initCache(args, "transactional", cacheMgr, cfg);
 
-            cache(args, "queryCache", cacheMgr, cfg);
+            initCache(args, "queryCache", cacheMgr, cfg);
 
             this.cacheMgr = cacheMgr;
 
@@ -170,10 +170,13 @@ public class InfinispanNode implements BenchmarkServer {
      * @param cacheName Cache name.
      * @param cacheMgr Default cache manager.
      * @param bcfg Benchmark configuration.
-     * @return Cache.
      */
-    private Cache<Object, Object> cache(InfinispanBenchmarkArguments args, String cacheName,
-        DefaultCacheManager cacheMgr, BenchmarkConfiguration bcfg) {
+    private void initCache(
+        InfinispanBenchmarkArguments args,
+        String cacheName,
+        DefaultCacheManager cacheMgr,
+        BenchmarkConfiguration bcfg
+    ) {
         Configuration cfg = cacheMgr.getCacheConfiguration(cacheName);
 
         ConfigurationBuilder cfgBuilder = new ConfigurationBuilder().read(cfg);
@@ -186,7 +189,7 @@ public class InfinispanNode implements BenchmarkServer {
         if (!args.clientMode()) {
             if (args.txIsolation() == IsolationLevel.SERIALIZABLE)
                 println(bcfg, "[WARNING] Infinispan doesn't actually support the SERIALIZABLE isolation level, " +
-                    "instead automatically it downgrades to REPEATABLE_READ.");
+                    "it automatically downgrades to REPEATABLE_READ instead.");
 
             cfgBuilder.locking().isolationLevel(args.txIsolation());
         }
@@ -195,15 +198,13 @@ public class InfinispanNode implements BenchmarkServer {
 
         cacheMgr.defineConfiguration(cacheName, cfgBuilder.build());
 
-        Cache cache = cacheMgr.getCache(cacheName);
+        Cache<Object, Object> cache = cacheMgr.getCache(cacheName);
 
         Configuration ccfg = cache.getCacheConfiguration();
 
         println(bcfg, "Started cache [name=" + cacheName + ", txMode=" + ccfg.transaction().transactionMode()
             + ", lockingMode=" + ccfg.transaction().lockingMode() + ", isolationMode="
             + ccfg.locking().isolationLevel() + ", indexing=" + ccfg.indexing().index() + ", fullCacheCfg=" + ccfg);
-
-        return cache;
     }
 
     /**
