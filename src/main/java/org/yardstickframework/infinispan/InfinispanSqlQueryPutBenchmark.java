@@ -21,7 +21,7 @@ import org.infinispan.query.Search;
 import org.infinispan.query.dsl.Query;
 import org.infinispan.query.dsl.QueryFactory;
 import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
-import org.yardstickframework.infinispan.querymodel.Person;
+import org.yardstickframework.infinispan.model.Person;
 
 /**
  * Infinispan benchmark that performs put and query operations.

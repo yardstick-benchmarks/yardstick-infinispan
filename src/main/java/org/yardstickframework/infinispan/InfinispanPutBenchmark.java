@@ -15,6 +15,7 @@
 package org.yardstickframework.infinispan;
 
 import java.util.Map;
+import org.yardstickframework.infinispan.model.SampleValue;
 
 /**
  * Infinispan benchmark that performs put operations.

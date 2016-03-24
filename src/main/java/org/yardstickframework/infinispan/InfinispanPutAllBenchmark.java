@@ -26,7 +26,7 @@ public class InfinispanPutAllBenchmark extends InfinispanAbstractBenchmark {
     @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         SortedMap<Integer, Integer> vals = new TreeMap<>();
 
-        for (int i = 0; i < args.batch(); i++) {
+        for (int i = 0; vals.size() < args.batch(); i++) {
             int key = nextRandom(args.range());
 
             vals.put(key, key);

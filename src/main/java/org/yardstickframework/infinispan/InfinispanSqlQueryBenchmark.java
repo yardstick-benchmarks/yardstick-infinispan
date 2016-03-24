@@ -25,7 +25,7 @@ import org.infinispan.query.dsl.Query;
 import org.infinispan.query.dsl.QueryFactory;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.infinispan.protobuf.PersonProtobuf;
-import org.yardstickframework.infinispan.querymodel.Person;
+import org.yardstickframework.infinispan.model.Person;
 
 import static org.yardstickframework.BenchmarkUtils.println;
 

@@ -12,7 +12,7 @@
  limitations under the License.
  */
 
-package org.yardstickframework.infinispan;
+package org.yardstickframework.infinispan.model;
 
 import java.io.Externalizable;
 import java.io.IOException;

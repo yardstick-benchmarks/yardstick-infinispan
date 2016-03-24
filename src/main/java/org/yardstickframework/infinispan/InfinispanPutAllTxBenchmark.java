@@ -47,7 +47,7 @@ public class InfinispanPutAllTxBenchmark extends InfinispanAbstractBenchmark {
         try {
             SortedMap<Integer, Integer> vals = new TreeMap<>();
 
-            for (int i = 0; i < args.batch(); i++) {
+            for (int i = 0; vals.size() < args.batch(); i++) {
                 int key = nextRandom(args.range());
 
                 vals.put(key, key);

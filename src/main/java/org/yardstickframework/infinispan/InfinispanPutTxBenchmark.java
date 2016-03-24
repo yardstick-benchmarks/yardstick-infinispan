@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.transaction.TransactionManager;
 import org.infinispan.Cache;
 import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.infinispan.model.SampleValue;
 
 /**
  * Infinispan benchmark that performs transactional put operations.
@@ -49,10 +50,9 @@ public class InfinispanPutTxBenchmark extends InfinispanAbstractBenchmark {
 
             tm.commit();
         }
-        catch (Exception e) {
-            e.printStackTrace(cfg.error());
-
-            tm.rollback();
+        finally {
+            if (tm != null)
+                tm.rollback();
         }
 
         return true;

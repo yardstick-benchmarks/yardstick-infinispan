@@ -47,7 +47,7 @@ public class InfinispanGetAllPutAllTxBenchmark extends InfinispanAbstractBenchma
         try {
             SortedMap<Integer, Integer> vals = new TreeMap<>();
 
-            for (int i = 0; i < args.batch(); i++) {
+            for (int i = 0; vals.size() < args.batch(); i++) {
                 int key = nextRandom(args.range());
 
                 vals.put(key, key);
@@ -60,10 +60,9 @@ public class InfinispanGetAllPutAllTxBenchmark extends InfinispanAbstractBenchma
 
             tm.commit();
         }
-        catch (Exception e) {
-            e.printStackTrace(cfg.error());
-
-            tm.rollback();
+        finally {
+            if (tm != null)
+                tm.rollback();
         }
 
         return true;
